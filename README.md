@@ -201,5 +201,4 @@ export interface IOrderView {
 
 Соответствуя принципу MVP-паттерна, основная идея заключается в добавлении связующего юнита между моделью и отображением.
 
-![UML схема](https://github.com/nwctr1nity/web-larek-frontend
-/blob/main/diagram.png?raw=true)
+![uml diagram](diagram-1.png)
