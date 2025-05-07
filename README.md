@@ -93,15 +93,12 @@ export interface IPresenter {
 #### Пример:
 ```
 export class Modal {
-  protected container: HTMLElement;
-  protected content: HTMLElement;
+  protected container = document.querySelector('modal__container');
+  protected closeButton = this.container.querySelector('.modal__close');
 
   constructor() {...}
 
-  render({ content }: { content: HTMLElement }) {...}
-
   open() {...}
-
   close() {...}
 }
 ```
