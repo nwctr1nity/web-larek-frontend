@@ -1,16 +1,21 @@
-import { IProduct } from "./index";
-import { TApiResponse } from "./api";
+import { IProduct, IOrder } from './model';
 
-
-// интерфейс для рендера товаров
-export interface IProductView {
-    renderProductList(items: IProduct[]): void;
-    showError(message: string): void;
+export interface IView {
+  render(data?: unknown): HTMLElement;
 }
 
-// интерфейс отображения валидации
-export interface IOrderView {
-    showOrderStatus(response: TApiResponse): void;
-    showValidationError(message: string): void;
-    showError(message: string): void;
+export interface IShopView extends IView {
+  //список товаров
+  setProducts(products: IProduct[]): void;
+
+  // корзина
+  updateBasketCounter(count: number): void;
+  updateBasket(items: { product: IProduct; count: number }[], total: number): void;
+
+  // обработчики
+  onBasketClick(handler: () => void): void;
+  onOrderSubmit(handler: (data: IOrder) => void): void;
+
+  // валидность
+  showValidationErrors(errors: string[]): void;
 }

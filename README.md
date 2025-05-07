@@ -42,164 +42,131 @@ npm run build
 ```
 yarn build
 ```
-## Используемые интерфейсы и типы данных
 
-### index.ts
+## Архитектура
 
-Список видов товара
+Проект состоит из следующих частей:
 
-```
-export const enum TProductType {
-    softSkill = `софт-скилл`,
-    other = `другое`,
-    additional = `дополнительное`,
-    button = `кнопка`,
-    hardSkill = `хард-скилл`
-}
-```
+### 1. Модель
+Модель данных описывает сущности приложения, такие как товары, корзина, заказ, платежные данные и контактная информация. Это объекты, которые инкапсулируют данные и логику, связанную с ними.
 
-Список способов оплаты
-```
-export const enum TPaymentMethod {
-    online = `Онлайн`,
-    onReceipt = `При получении`
-}
-```
-
-Тип корзины товаров
-```
-export type TBasket = {
-    items: IProduct[];
-	total: number;
-}
-```
-Интерфейс корзины товаров
-```
-export interface IBasket extends TBasket {
-    countItems(): number;
-	countTotal(): number;
-    
-    addItem(item: IProduct): void;
-	removeItem(item: IProduct): void;
-}
-```
-
-Тип формы оплаты и адреса
-```
-export type TPayment = {
-    payment: TPaymentMethod;
-    address: string;
-}
-```
-Интерфейс формы оплаты и адреса
-```
-export interface IPaymentForm extends TPayment {
-    checkValidity(): boolean;
-}
-```
-
-Тип формы контактов
-```
-export type TContacts = {
-    email: string;
-    phone: string;
-}
-```
-Интерфейс формы контактов
-```
-export interface IContactsForm extends TContacts {
-    checkValidity(): boolean;
-}
-```
-
-Интерфейс продукта, получаемого с сервера
+#### Пример:
 ```
 export interface IProduct {
-    id: string;
-    type: TProductType;
-    title: string;
-    image: string;
-    description: string;
-    price: number;
-}
-```
-Интейфейс отправляемого на сервер заказа
-```
-export interface IOrder extends TPayment, TContacts, TBasket {}
-```
-
-### api.ts
-
-Тип ответа с сервера
-```
-export type TApiResponse = {
-    id: string;
-    total: number;
+  id: string;
+  type: TProductType;
+  title: string;
+  image: string;
+  description: string;
+  price: number;
 }
 ```
 
-Интерфейс запроса на сервер
+### 2. Отображение
+Отображение отвечают за отображение данных на экране. Это классы, которые рендерят HTML и взаимодействуют с пользователем через интерфейс. Они также обрабатывают пользовательские события.
+
+#### Пример:
 ```
-export interface IApiRequest {
-    getProductList:() => Promise<IProduct[]>;
-    successResponse:(order: IOrder) => Promise<TApiResponse>
+export interface IShopView extends IView {
+  setProducts(products: IProduct[]): void;
+  updateBasketCounter(count: number): void;
+  updateBasket(items: { product: IProduct; count: number }[], total: number): void;
 }
 ```
 
-### model.ts
+### 3. Презентер
+Презентер является связующим звеном между моделью и отображением.
 
-Интерфейс модели
+#### Пример:
 ```
-export interface IAppState {
-    product: IProduct | null;
-    productList: IProduct[];
-    basket: IBasket;
-    order: IOrder | null;
+export interface IPresenter {
+  model: IShopModel;
+  view: IShopView;
+  events: EventEmitter;
+  init(): void;
 }
 ```
 
-### presenter.ts
+### 4. Сервисные классы
+Сервисные классы отвечают за общие функциональности, такие как работа с API, управление событиями и модальными окнами, которые должны быть доступны для переиспользования в других частях проекта.
 
-Интерфейс для управления отображением
+#### Пример:
 ```
-export interface IProductPresenter {
-    getProductList(): Promise<void>;
-    addToBasket(item: IProduct): void;
-    removeFromBasket(item: IProduct): void;
+export class Modal {
+  protected container: HTMLElement;
+  protected content: HTMLElement;
+
+  constructor() {...}
+
+  render({ content }: { content: HTMLElement }) {...}
+
+  open() {...}
+
+  close() {...}
 }
 ```
 
-Интерфейс для заказа и валидации
+## Взаимодействие частей
+Моделю данных взаимодействует с отображением через презентер. Презентер вызывает методы модели для получения или изменения данных и передает их во view.
+
+Отображения отправляют события, которые обрабатываются презентером. Например, когда пользователь добавляет товар в корзину, view вызывает событие, которое презентер слушает и обрабатывает. Презентер обновляет модель данных и отправляет обновленные данные во view для рендера.
+
+Сервисные классы используются для работы с внешними сервисами, например, для отображения модального окна.
+
+Все компоненты взаимодействуют через события, что позволяет избежать жесткой связанности.
+
+Данные в приложении
+Основные данные в приложении представлены интерфейсами, которые описывают бизнес-логические сущности:
+
+Товары (IProduct): Данные, связанные с продуктами в магазине, включая тип, описание, цену и изображение.
+
+Корзина (IBasket): Структура данных для представления корзины покупок, которая включает список товаров и их количество.
+
+Заказ (IOrder): Данные о заказе, включая информацию о платеже, адресе и контактных данных.
+
+Платежи (TPaymentMethod): Типы платежей, такие как онлайн и при получении.
+
+Контактная информация (IContacts): Данные о пользователе, включая email и телефон.
+
+#### Пример:
 ```
-export interface IOrderPresenter {
-    submitOrder(order: IOrder): Promise<void>;
-    validatePayment(payment: TPayment): boolean;
-    validateContacts(contacts: TContacts): boolean;
+export interface IProduct {
+  id: string;
+  type: TProductType;
+  title: string;
+  image: string;
+  description: string;
+  price: number;
+}
+
+export interface IOrder {
+  payment: TPaymentMethod;
+  address: string;
+  email: string;
+  phone: string;
+  items: IProduct[];
+  total: number;
 }
 ```
 
-### view.ts
+## Процессы в приложении
+Процессы в приложении реализованы через события
 
-Интерфейс для рендера товаров
-```
-export interface IProductView {
-    renderProductList(items: IProduct[]): void;
-    showError(message: string): void;
-}
-```
+Когда приложение запускается, презентер вызывает метод модели для загрузки товаров. Модель отправляет запрос к API, получает ответ и передает данные в представление.
 
-Интерфейс отображения валидации
+#### Пример :
 ```
-export interface IOrderView {
-    showOrderStatus(response: TApiResponse): void;
-    showValidationError(message: string): void;
-    showError(message: string): void;
-}
+model.loadProducts().then(products => {
+  view.setProducts(products);
+});
 ```
 
-## Архитектура приложения
+Когда пользователь добавляет товар в корзину, событие обрабатывается в презентере, который обновляет модель и передает обновленную информацию в представление для рендеринга.
 
-Соответствуя принципу MVP-паттерна, основная идея заключается в добавлении связующего юнита(презентера) между моделью и отображением.
-Презентер взаимодействует с моделью и отображением, а так же отправляет запросы на сервер. Модель в свою очередь никак не связана с отображением.
-
-![uml diagram](diagram-1.png)
+#### Пример:
+```
+events.on('addToBasket', (productId) => {
+  model.addToBasket(productId);
+  view.updateBasket(model.getBasketItems());
+});
+```
