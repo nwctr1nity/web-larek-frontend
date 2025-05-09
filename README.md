@@ -108,7 +108,7 @@ export class Modal {
 
 Отображения отправляют события, которые обрабатываются презентером. Например, когда пользователь добавляет товар в корзину, view вызывает событие, которое презентер слушает и обрабатывает. Презентер обновляет модель данных и отправляет обновленные данные во view для рендера.
 
-Сервисные классы используются для работы с внешними сервисами, например, для отображения модального окна.
+Сервисные классы используются для работы с внешними сервисами, например, для открывания или закрывания модального окна(Modal.open(), Modal.close()).
 
 Все компоненты взаимодействуют через события, что позволяет избежать жесткой связанности.
 
@@ -147,7 +147,7 @@ export interface IOrder {
 ```
 
 ## Процессы в приложении
-Процессы в приложении реализованы через событийную связь
+Процессы в приложении реализованы через событийную связь.
 
 Когда приложение запускается, презентер вызывает метод модели для загрузки товаров. Модель отправляет запрос к API, получает ответ и передает данные в отображение.
 
@@ -167,3 +167,104 @@ events.on('addToBasket', (productId) => {
   view.updateBasket(model.getBasketItems());
 });
 ```
+## Классы в приложении
+Ниже перечислены все основные классы, используемые в приложении, отсортированные по архитектурным слоям.
+
+### Модель
+#### AppState
+Роль: глобальное хранилище состояния приложения
+Назначение: централизованное управление данными
+
+```
+class AppState {
+  products: IProduct[]
+  basket: Map<string, number>
+  order: IOrder
+
+  constructor()
+
+  addToBasket(id: string): void
+  removeFromBasket(id: string): void
+  getBasketItems(): IProduct[]
+  getBasketTotal(): number
+}
+```
+
+#### Order
+Роль: объект бизнес-логики для оформления заказа
+Назначение: проверка и формирование заказов
+
+```
+class Order {
+  items: IProduct[]
+  address: string
+  email: string
+  phone: string
+  payment: TPaymentMethod
+
+  constructor(orderData: Partial<IOrder>) 
+
+  validate(): string[] — проверка на валидность
+  getTotal(): number
+  submit(): Promise<void>
+}
+```
+
+### View
+#### ProductCard
+Роль: компонент отображения одного товара
+Назначение: визуальное представление товара и передача событий
+
+```
+class ProductCard {
+  product: IProduct
+
+  constructor(product: IProduct)
+
+  render(): HTMLElement
+  onAddToBasket(handler: () => void): void
+}
+```
+
+#### BasketView
+Роль: компонент отображения корзины
+Назначение: отображение содержимого корзины и общей суммы
+
+```
+class BasketView {
+  items: { product: IProduct; count: number }[]
+  total: number
+
+  constructor(container: HTMLElement)
+
+  update(items, total): void
+  onRemove(handler: (id: string) => void): void
+}
+```
+
+#### OrderFormView
+Роль: форма оформления заказа
+Назначение: ввод данных заказа и отправка
+
+```
+class OrderFormView {
+  constructor(formElement: HTMLFormElement)
+
+  render(): HTMLElement
+  onSubmit(handler: (order: IOrder) => void): void
+  showValidationErrors(errors: string[]): void
+}
+```
+
+### Сервисный слой
+#### Api
+(описан выше)
+
+#### Modal
+(описан выше)
+
+#### EventEmitter
+(описан выше)
+
+#### IShopPresenter
+(описан выше)
