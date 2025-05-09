@@ -210,6 +210,9 @@ class Order {
 }
 ```
 
+### Presenter
+(описан выше)
+
 ### View
 #### ProductCard
 Роль: компонент отображения одного товара
@@ -264,7 +267,4 @@ class OrderFormView {
 (описан выше)
 
 #### EventEmitter
-(описан выше)
-
-#### IShopPresenter
 (описан выше)
