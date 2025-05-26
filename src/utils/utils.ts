@@ -1,3 +1,26 @@
+// валидация почты
+export function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+//валидация телефона
+export function isValidPhone(phone: string): boolean {
+  return /^\+?[1-9]\d{10,14}$/.test(phone);
+}
+//форматирование ошибок
+export function formatErrors(errors: (string | undefined)[]): string {
+  const list = errors.filter(Boolean).map((msg) => msg!.trim());
+  if (!list.length) return '';
+  return list
+    .map((msg, i) => {
+      if (i === 0) {
+        return msg.charAt(0).toUpperCase() + msg.slice(1);
+      }
+      return msg.charAt(0).toLowerCase() + msg.slice(1);
+    })
+    .join(', ');
+}
+
+// готовые функции
 export function pascalToKebab(value: string): string {
     return value.replace(/([a-z0–9])([A-Z])/g, "$1-$2").toLowerCase();
 }
