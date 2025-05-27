@@ -2,7 +2,7 @@ import { BaseComponent } from '../base/baseComponent';
 import { IEvents } from '../base/events';
 import { ensureElement } from '../../utils/utils';
 import { IPage } from '../../types';
-
+import { EVENTS } from '../../utils/constants';
 
 export class Page extends BaseComponent<IPage> {
   protected counterEl: HTMLElement = ensureElement('.header__basket-counter', document.body);
@@ -13,7 +13,7 @@ export class Page extends BaseComponent<IPage> {
   constructor(container: HTMLElement, protected events: IEvents) {
     super(container);
     this.basketEl.addEventListener('click', () => {
-      this.events.emit('basket:view');
+      this.events.emit(EVENTS.BASKET_VIEW);
     });
   }
 

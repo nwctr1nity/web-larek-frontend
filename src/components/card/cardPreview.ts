@@ -12,4 +12,8 @@ export class CardPreview extends Card {
   set description(val: string) {
     this.textEl.textContent = val;
   }
+
+  disableButton() {
+    this.btnEl.disabled = true;
+  }
 }

@@ -2,6 +2,7 @@ import { TFormErrors, IOrder, IOrderForm } from '../../types';
 import { IEvents } from '../base/events';
 import { isValidEmail, isValidPhone } from '../../utils/utils';
 import { BasketState } from './basketState';
+import { EVENTS } from '../../utils/constants';
 
 export class OrderState {
   order: IOrder = {
@@ -22,8 +23,8 @@ export class OrderState {
     this.validateContacts();
     this.validateOrder();
 
-    if (this.validateContacts()) this.events.emit('contacts:valid', this.order);
-    if (this.validateOrder()) this.events.emit('order:valid', this.order);
+    if (this.validateContacts()) this.events.emit(EVENTS.CONTACTS_VALID, this.order);
+    if (this.validateOrder()) this.events.emit(EVENTS.ORDER_VALID, this.order);
   }
 
   validateContacts(): boolean {
@@ -31,7 +32,7 @@ export class OrderState {
     if (!this.order.email || !isValidEmail(this.order.email)) err.email = 'Некорректный email';
     if (!this.order.phone || !isValidPhone(this.order.phone)) err.phone = 'Некорректный телефон';
     this.errors = err;
-    this.events.emit('form:contacts-errors', this.errors);
+    this.events.emit(EVENTS.FORM_CONTACTS_ERRORS, this.errors);
     return Object.keys(err).length === 0;
   }
 
@@ -40,7 +41,7 @@ export class OrderState {
     if (!this.order.payment) err.payment = 'Выберите способ оплаты';
     if (!this.order.address) err.address = 'Укажите адрес';
     this.errors = err;
-    this.events.emit('form:order-errors', this.errors);
+    this.events.emit(EVENTS.FORM_ORDER_ERRORS, this.errors);
     return Object.keys(err).length === 0;
   }
 

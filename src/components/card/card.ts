@@ -31,7 +31,7 @@ export class Card extends BaseComponent<IProduct> {
       }
     }
   }
-
+  
   set id(val: string) {
     this.root.dataset.id = val;
   }

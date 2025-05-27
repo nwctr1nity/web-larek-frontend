@@ -1,6 +1,7 @@
 import { IEvents } from '../base/events';
 import { FormComponent } from '../form/formComponent';
 import { IOrder } from '../../types';
+import { EVENTS } from '../../utils/constants';
 
 
 export class Order extends FormComponent<IOrder> {
@@ -8,7 +9,7 @@ export class Order extends FormComponent<IOrder> {
   cashBtn: HTMLButtonElement;
 
   constructor(container: HTMLFormElement, events: IEvents) {
-    super(container, events, 'order:send');
+    super(container, events, EVENTS.ORDER_SEND);
 
     this.cardBtn = container.elements.namedItem('card') as HTMLButtonElement;
     this.cashBtn = container.elements.namedItem('cash') as HTMLButtonElement;

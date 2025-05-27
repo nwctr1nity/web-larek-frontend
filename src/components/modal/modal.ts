@@ -2,7 +2,7 @@ import { BaseComponent } from '../base/baseComponent';
 import { ensureElement } from '../../utils/utils';
 import { IEvents } from '../base/events';
 import { IModal } from '../../types';
-
+import { EVENTS } from '../../utils/constants';
 
 export class Modal extends BaseComponent<IModal> {
   protected closeBtn: HTMLElement;
@@ -23,13 +23,13 @@ export class Modal extends BaseComponent<IModal> {
 
   open() {
     this.root.classList.add('modal_active');
-    this.events.emit('modal:open');
+    this.events.emit(EVENTS.MODAL_OPEN);
   }
 
   close() {
     this.root.classList.remove('modal_active');
     this.modalArea.replaceChildren();
-    this.events.emit('modal:close');
+    this.events.emit(EVENTS.MODAL_CLOSE);
   }
 
   render(data: IModal): HTMLElement {

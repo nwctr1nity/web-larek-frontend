@@ -1,6 +1,7 @@
 import { IBasketData } from '../../types';
 import { BaseComponent } from '../base/baseComponent';
 import { IEvents } from '../base/events';
+import { EVENTS } from '../../utils/constants';
 
 export class Basket extends BaseComponent<IBasketData> {
   protected listEl: HTMLElement;
@@ -13,7 +14,7 @@ export class Basket extends BaseComponent<IBasketData> {
     this.priceEl = container.querySelector(`.basket__price`) as HTMLElement;
     this.listEl = container.querySelector(`.basket__list`) as HTMLElement;
     this.orderBtn.addEventListener('click', () => {
-      events.emit('basket:order');
+      events.emit(EVENTS.BASKET_ORDER);
     });
   }
   

@@ -2,7 +2,7 @@ import { BaseComponent } from '../base/baseComponent';
 import { ensureElement } from '../../utils/utils';
 import { IEvents } from '../base/events';
 import { IFormState } from '../../types';
-
+import { EVENTS } from '../../utils/constants';
 
 export class FormComponent<T> extends BaseComponent<IFormState> {
   protected submitBtn: HTMLButtonElement = ensureElement('button[type=submit]', this.container) as HTMLButtonElement;
@@ -42,7 +42,7 @@ export class FormComponent<T> extends BaseComponent<IFormState> {
   }
 
   handleInputChange(input: keyof T, value: string) {
-    this.events.emit('form:input-update', { input, value });
+    this.events.emit(EVENTS.FORM_INPUT_UPDATE, { input, value });
   }
 
   render(state: Partial<T> & IFormState) {

@@ -24,6 +24,26 @@ export const categoryClasses: { [key in TProductType]: string } = {
   [TProductType.hardSkill]: 'card__category_hard',
 };
 
+// названия событий
+export const EVENTS = {
+  PRODUCT_OPEN: 'product:open',
+  PRODUCT_ADD_TO_BASKET: 'product:add-to-basket',
+  PRODUCTS_LOAD: 'products:load',
+  BASKET_VIEW: 'basket:view',
+  BASKET_REMOVE: 'basket:remove',
+  BASKET_ORDER: 'basket:order',
+  FORM_ORDER_ERRORS: 'form:order-errors',
+  FORM_CONTACTS_ERRORS: 'form:contacts-errors',
+  FORM_INPUT_UPDATE: 'form:input-update',
+  MODAL_CLOSE: 'modal:close',
+  MODAL_OPEN: 'modal:open',
+  CONTACTS_SEND: 'contacts:send',
+  CONTACTS_VALID: 'contacts:valid',
+  ORDER_SEND: 'order:send',
+  ORDER_VALID: 'order:valid',
+  ORDER_COMPLETE: 'order:complete',
+};
+
 // общие зависимости
 export const api = new Api(API_URL);
 export const eventBus = new EventEmitter();

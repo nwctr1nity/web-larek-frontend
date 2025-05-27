@@ -18,7 +18,8 @@ import {
   basketComponent, 
   orderComponent,
   contactsComponent,
-  successComponent
+  successComponent,
+  EVENTS
 } from './utils/constants';
 
 const app = new ShopState(eventBus);
@@ -31,10 +32,14 @@ api.get('/product/').then((res: ApiListResponse<IProduct>) => {
   app.catalog.setProducts(res.items);
 });
 
-eventBus.on('product:open', (item: ProductItem) => {
+eventBus.on(EVENTS.PRODUCT_OPEN, (item: ProductItem) => {
   mainPage.lockScroll = true;
   const preview = new CardPreview(cloneTemplate(previewTemplate), {
-    onClick: () => eventBus.emit('product:add-to-basket', item),
+    onClick: () => {
+      if (item.price !== null) {
+        eventBus.emit(EVENTS.PRODUCT_ADD_TO_BASKET, item);
+      }
+    },
   });
   preview.update({
     id: item.id,
@@ -44,13 +49,16 @@ eventBus.on('product:open', (item: ProductItem) => {
     description: item.description,
     price: item.price,
   });
+  if (item.price === null) {
+    preview.disableButton?.();
+  }
   modal.render({ content: preview.element });
 });
 
-eventBus.on('products:load', () => {
+eventBus.on(EVENTS.PRODUCTS_LOAD, () => {
   mainPage.gallery = app.catalog.products.map((item) => {
     const card = new CardItem(cloneTemplate(catalogTemplate), {
-      onClick: () => eventBus.emit('product:open', item),
+      onClick: () => eventBus.emit(EVENTS.PRODUCT_OPEN, item),
     });
     card.update({
       id: item.id,
@@ -63,18 +71,18 @@ eventBus.on('products:load', () => {
   });
 });
 
-eventBus.on('product:add-to-basket', (item: ProductItem) => {
+eventBus.on(EVENTS.PRODUCT_ADD_TO_BASKET, (item: ProductItem) => {
   app.basket.addItem(item);
   mainPage.basketCounter = app.basket.countItems();
   modal.close();
 });
 
-eventBus.on('basket:view', () => {
+eventBus.on(EVENTS.BASKET_VIEW, () => {
   mainPage.lockScroll = true;
 
   const basketItems = app.basket.basket.map((item, idx) => {
     const el = new BasketItem(cloneTemplate(basketCardTemplate), {
-      onClick: () => eventBus.emit('basket:remove', item),
+      onClick: () => eventBus.emit(EVENTS.BASKET_REMOVE, item),
     });
     el.update({
       ...item,
@@ -90,7 +98,7 @@ eventBus.on('basket:view', () => {
   modal.render({ content: basketComponent.element });
 });
 
-eventBus.on('basket:remove', (item: ProductItem) => {
+eventBus.on(EVENTS.BASKET_REMOVE, (item: ProductItem) => {
   app.basket.removeItem(item.id);
   basketComponent.price = app.basket.countTotal();
   mainPage.basketCounter = app.basket.countItems();
@@ -98,7 +106,7 @@ eventBus.on('basket:remove', (item: ProductItem) => {
   if (!app.basket.basket.length) basketComponent.buttonOff();
 });
 
-eventBus.on('basket:order', () => {
+eventBus.on(EVENTS.BASKET_ORDER, () => {
   orderComponent.update({
     address: app.order.order.address,
     valid: false,
@@ -108,23 +116,23 @@ eventBus.on('basket:order', () => {
   modal.render({ content: orderComponent.element });
 });
 
-eventBus.on('form:order-errors', (errs: Partial<IOrderForm>) => {
+eventBus.on(EVENTS.FORM_ORDER_ERRORS, (errs: Partial<IOrderForm>) => {
   const { payment, address } = errs;
   orderComponent.validity = !(payment || address);
   orderComponent.errors = formatErrors([payment, address]);
 });
 
-eventBus.on('form:contacts-errors', (errs: Partial<IOrderForm>) => {
+eventBus.on(EVENTS.FORM_CONTACTS_ERRORS, (errs: Partial<IOrderForm>) => {
   const { email, phone } = errs;
   contactsComponent.validity = !email && !phone;
   contactsComponent.errors = formatErrors([phone, email]);
 });
 
-eventBus.on('form:input-update', (text: { input: keyof IOrderForm, value: string }) => {
+eventBus.on(EVENTS.FORM_INPUT_UPDATE, (text: { input: keyof IOrderForm, value: string }) => {
   app.order.updateFormInput(text.input, text.value);
 });
 
-eventBus.on('order:send', () => {
+eventBus.on(EVENTS.ORDER_SEND, () => {
   app.order.prepare();
   contactsComponent.update({
     valid: false,
@@ -134,10 +142,10 @@ eventBus.on('order:send', () => {
   modal.render({ content: contactsComponent.element });
 });
 
-eventBus.on('contacts:send', () => {
+eventBus.on(EVENTS.CONTACTS_SEND, () => {
   api.post('/order', app.order.order)
     .then(res => {
-      eventBus.emit('order:complete', res);
+      eventBus.emit(EVENTS.ORDER_COMPLETE, res);
       app.order.reset();
       orderComponent.buttonsOff();
       mainPage.basketCounter = 0;
@@ -145,7 +153,7 @@ eventBus.on('contacts:send', () => {
     .catch(console.warn);
 });
 
-eventBus.on('order:complete', (res: ApiListResponse<string>) => {
+eventBus.on(EVENTS.ORDER_COMPLETE, (res: ApiListResponse<string>) => {
   app.basket.clear();
   mainPage.basketCounter = app.basket.countItems();
   successComponent.update({
@@ -154,6 +162,6 @@ eventBus.on('order:complete', (res: ApiListResponse<string>) => {
   modal.render({ content: successComponent.element });
 });
 
-eventBus.on('modal:close', () => {
+eventBus.on(EVENTS.MODAL_CLOSE, () => {
   mainPage.lockScroll = false;
 });
